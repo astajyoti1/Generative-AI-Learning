@@ -8,6 +8,50 @@
 # - Supports async operations for better performance.
 # - Automatic JSON serialization/deserialization.
 
+# HTTP Methods Theory:
+# HTTP methods define the type of operation to be performed on a resource. Here are the main ones used in REST APIs:
+#
+# 1. GET - Retrieve data from the server
+#    - Safe and idempotent (can be called multiple times without side effects)
+#    - Used for: Reading/fetching data, listing resources, searching
+#    - No request body needed
+#    - Parameters can be passed via URL path or query strings
+#    - Example: Get user profile, list products, search items
+#
+# 2. POST - Create new resources on the server
+#    - Not idempotent (calling multiple times creates multiple resources)
+#    - Used for: Creating new items, submitting forms, uploading data
+#    - Request body contains the data to create
+#    - Returns the created resource (often with generated ID)
+#    - Example: Create new user account, add product to cart, submit contact form
+#
+# 3. PUT - Update/replace entire resources
+#    - Idempotent (multiple calls have same effect as one)
+#    - Used for: Updating complete resources, replacing existing data
+#    - Request body contains the complete updated resource
+#    - Creates resource if it doesn't exist (full replacement)
+#    - Example: Update user profile, modify product details
+#
+# 4. DELETE - Remove resources from the server
+#    - Idempotent (deleting something already deleted has no effect)
+#    - Used for: Removing items, deleting accounts, clearing data
+#    - Usually no request body
+#    - Returns success status even if resource didn't exist
+#    - Example: Delete user account, remove product, clear cache
+#
+# Additional common methods:
+# - PATCH: Partial updates (modify only specified fields)
+# - HEAD: Same as GET but returns only headers (for checking resource existence)
+# - OPTIONS: Get information about supported methods for a resource
+#
+# Usage Guidelines:
+# - Use GET for safe read operations
+# - Use POST for creating new resources
+# - Use PUT for full updates/replacements
+# - Use DELETE for removing resources
+# - Use PATCH for partial modifications
+# - Follow REST conventions for predictable API design
+
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
@@ -34,6 +78,7 @@ class User(BaseModel):
     full_name: Optional[str] = None
 
 # Basic GET route - Hello World
+# GET Method Usage: Retrieves data without modifying server state
 # Routes are defined using decorators. This responds to GET requests at the root path "/"
 @app.get("/")
 def read_root():
@@ -41,6 +86,7 @@ def read_root():
     return {"message": "Welcome to FastAPI Basics Tutorial!"}
 
 # GET route with path parameters
+# GET Method Usage: Retrieves specific resource data using URL path parameters
 # Path parameters are part of the URL path, enclosed in curly braces {}
 # They are automatically validated and converted to the specified type
 @app.get("/items/{item_id}")
@@ -54,6 +100,7 @@ def read_item(item_id: int, q: Optional[str] = None):
     return {"item_id": item_id, "q": q}
 
 # POST route with request body
+# POST Method Usage: Creates new resources on the server
 # POST requests typically send data in the request body
 # FastAPI automatically validates and parses JSON into the Pydantic model
 @app.post("/items/")
@@ -69,6 +116,7 @@ def create_item(item: Item):
     return {"item": item, "message": "Item created successfully"}
 
 # PUT route - Update operation
+# PUT Method Usage: Updates/replaces entire resources (full replacement)
 # PUT is used for updating existing resources
 @app.put("/items/{item_id}")
 def update_item(item_id: int, item: Item):
@@ -80,6 +128,7 @@ def update_item(item_id: int, item: Item):
     return {"item_id": item_id, "item": item, "message": "Item updated"}
 
 # DELETE route - Delete operation
+# DELETE Method Usage: Removes resources from the server
 # DELETE removes a resource
 @app.delete("/items/{item_id}")
 def delete_item(item_id: int):
@@ -89,6 +138,7 @@ def delete_item(item_id: int):
     return {"message": f"Item {item_id} deleted"}
 
 # GET route with multiple query parameters
+# GET Method Usage: Retrieves filtered/search results using query parameters
 # Query parameters are key-value pairs after the ? in the URL
 @app.get("/search/")
 def search_items(name: Optional[str] = None, price_min: Optional[float] = None, price_max: Optional[float] = None):
@@ -107,6 +157,7 @@ def search_items(name: Optional[str] = None, price_min: Optional[float] = None, 
     }
 
 # POST route with user data
+# POST Method Usage: Creates new user resources
 # Demonstrates using a different Pydantic model
 @app.post("/users/")
 def create_user(user: User):
@@ -118,6 +169,7 @@ def create_user(user: User):
     return {"user": user, "message": "User created"}
 
 # Async endpoint example
+# GET Method Usage: Retrieves data asynchronously for better performance
 # FastAPI supports async functions for better performance with I/O operations
 @app.get("/async-example/")
 async def async_example():
@@ -131,6 +183,7 @@ async def async_example():
     return {"message": "This is an async response"}
 
 # Response with custom status code
+# GET Method Usage: Retrieves resource status or existence information
 # By default, FastAPI returns 200 for successful operations
 # You can specify different status codes
 from fastapi import HTTPException
